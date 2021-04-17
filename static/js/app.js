@@ -1,18 +1,12 @@
-//built table builds demo table
-//init selects the data set
-//optinoschange is the function that changes the table
-//make functions then call them later
-
-
 // dropdown metadata table
-function buildTable(sample) {
+function demoTable(sample) {
+    //data source
     d3.json("data/samples.json").then(data => {
-        //console.log(data);
-        // sample = 940;
         var metaData = data.metadata;
+        //variable that compares and filters to the correct id
         var results = metaData.filter(d => d.id == sample);
+        //variable to store the data from results variable
         var finalResult = results[0];
-        //**console.log(finalResult) DELETE LATER**
         var panel = d3.select("#sample-metadata");
         panel.html("");
         Object.entries(finalResult).forEach(([key, value]) => {
@@ -22,13 +16,13 @@ function buildTable(sample) {
     })
 };
 
-// function for the demographic table
-//reference day3 activity 7
+//reference day3 activity 7 function for the demographic table
 function init() {
     var dropDown = d3.select("#selDataset");
+    //data source
     d3.json("data/samples.json").then(data => {
+        //variable to store the names data
         var names = data.names;
-        //console.log(names) DELETE LATER
         names.forEach(sample => {
             dropDown.append("option")
                 .text(sample)
@@ -36,20 +30,19 @@ function init() {
         });
         var firstSample = names[0];
         console.log(firstSample);
-        buildTable(firstSample);
+        demoTable(firstSample);
         buildCharts(firstSample);
     });
 }
-
+//function calling the other functions to build the table and the charts
 function optionChanged(name) {
-    buildTable(name);
+    demoTable(name);
     buildCharts(name)
 
 };
 
-//horizontal bar chart, reference day3 activity 7
+//horizontal bar chart, reference day 3 activity 7
 //Use D3 fetch to read the JSON file
-//The data from the JSON file is arbitrarily named importedData as the argument
 function buildCharts(sample) {
     d3.json("data/samples.json").then((data) => {
         var metasamples = data.samples;
@@ -57,27 +50,33 @@ function buildCharts(sample) {
         var finalResult = results[0];
         console.log(finalResult)
 
-        //variables to store the data in for the graphs    
+        //variables to store the data in for the bar and bubble graph
+        //will be used for formatting as well    
         var otu_ids = finalResult.otu_ids
         var sample_values = finalResult.sample_values
         var otu_labels = finalResult.otu_labels
 
-        // Trace1 for the data, reference the 
-        var trace1 = {
+        // Trace for the data, limit them to the top 10 values by slicing, reverse to get the order
+        var bar_trace = {
             x: otu_ids.slice(0, 10).reverse(),
             y: sample_values.slice(0, 10).reverse(),
             text: otu_labels.slice(0, 10).reverse(),
+            //title of bar char
             name: "Horizontal Bellybutton Bar",
+            //declaring the type of chart
             type: "bar",
+            //orientation of the bar chart
             orientation: "h"
         };
 
         // data
-        var chartData = [trace1];
+        var chartData = [bar_trace];
 
         // Apply the group bar mode to the layout
         var layout = {
             title: "Top 10 OTUs",
+            //layout for the bar chart
+            //spacing of the chart, spacing is also determined by the column class in the html
             margin: {
                 l: 100,
                 r: 100,
@@ -89,27 +88,25 @@ function buildCharts(sample) {
         // Render the plot to the div tag with id "bar"
         Plotly.newPlot("bar", chartData, layout);
 
-
         //bubble chart//
-        // Trace1 for the data, reference the 
-
-
-        var trace2 = {
+        //trace for the bubble chart
+        var bubble_trace = {
             x: otu_ids,
             y: sample_values,
             text: otu_labels,
             name: "bubble chart",
             mode: 'markers',
+            //bubble formats pulled from the values and the otu ids (hw instructions)
             marker: {
                 size: sample_values,
                 color: otu_ids,
             }
-
         };
-        var charData2 = [trace2];
+        var charData2 = [bubble_trace];
         // Apply the group bar mode to the layout
         var layout2 = {
             title: "Top 10 OTUs",
+            //spacing of the chart, spacing is also determined by the column class in the html
             margin: {
                 l: 100,
                 r: 100,
@@ -121,6 +118,5 @@ function buildCharts(sample) {
         //closing of the function
     })
 }
-
 
 init();
